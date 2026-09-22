@@ -1,11 +1,9 @@
 {
-    description = "<HW_ASSIGNMENT> flake";
+    description = "enae641-hw01 flake";
 
     inputs = {
         # nixpkgs
-        # WARN: python3xxPackages.cartopy broken on release-26.05
-        # nixpkgs.url = "github:nixos/nixpkgs/release-26.05";
-        nixpkgs.url = "github:nixos/nixpkgs/staging-next";
+        nixpkgs.url = "github:nixos/nixpkgs/release-26.05";
         nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
         # flake tools (thanks numtide)

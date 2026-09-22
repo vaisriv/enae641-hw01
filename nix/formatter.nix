@@ -12,23 +12,11 @@ inputs.treefmt-nix.lib.mkWrapper pkgs {
         };
     };
 
-    # md
+    # md/yaml
     programs.prettier = {
         enable = true;
         settings = {
             tabWidth = 4;
-        };
-    };
-
-    # latex
-    programs.texfmt.enable = true;
-    settings.formatter = {
-        texfmt = {
-            options = [
-                "--nowrap"
-                "--tabsize"
-                "4"
-            ];
         };
     };
 
@@ -50,5 +38,11 @@ inputs.treefmt-nix.lib.mkWrapper pkgs {
                 "src/p*.py"
             ];
         };
+    };
+
+    # typst
+    programs.typstyle = {
+        enable = true;
+        indentWidth = 4;
     };
 }
