@@ -112,10 +112,10 @@ $
 Row reducing:
 $
     mat(
-            2, -2, 3, -3;
-            -1, 2, 1, 2;
-            4, 1, 3, 4;
-            augment: #3
+        2, -2, 3, -3;
+        -1, 2, 1, 2;
+        4, 1, 3, 4;
+        augment: #3
     ) ~ mat(
         1, 0, 0, 29/31;
         0, 1, 0, 53/31;
@@ -189,7 +189,55 @@ $
     <hwk:p02b>
 ] <hwk:p02>
 
-// TODO: answer
+1. Trim input and deviation equation
+
+Using the supplied lecture model, $z_1 = theta$, $z_2 = dot(theta) = omega$, and $mu = tau_m$. With the damping torque satisfying $b(0) = 0$, the angular equation is:
+$
+    m l^2 dot.double(theta) + b(dot(theta)) + m g l sin(theta) = tau_m
+$
+Take $g =$ #qty(9.81, "m/s^2"). At equilibrium, $dot(theta)^* = dot.double(theta)^* = 0$, so:
+$
+    tau_m^* = m g l sin(theta^*) = 19.62 sin(pi/3)
+$
+Thus, $tau_m^* =$ #qty(16.9914, "N m"). $quad qed$
+
+Define the output deviation $y = theta - pi/3$ and input deviation $u = tau_m - tau_m^*$. Keeping first-order terms gives:
+$
+    m l^2 dot.double(y) + b'(0) dot(y) + m g l cos(theta^*) y = u
+$
+Substituting known values:
+$
+    4 dot.double(y) + 8 dot(y) + 9.81 y = u
+    quad arrow.r quad
+    dot.double(y) + 2 dot(y) + 2.4525 y = u/4 quad qed
+$
+
+2. Free response about trim
+
+Holding the input at trim means $u = 0$. Comparing the homogeneous equation with $dot.double(y) + 2 zeta omega_n dot(y) + omega_n^2 y = 0$:
+$
+    omega_n = sqrt(2.4525), quad
+    zeta = 1/sqrt(2.4525), quad
+    omega_d = omega_n sqrt(1-zeta^2) = sqrt(1.4525)
+$
+The poles are $-1 plus.minus j sqrt(1.4525)$, so the response is an exponentially decaying oscillation. For release from rest with $y(0) = epsilon$:
+$
+    theta(t) = pi/3 + epsilon e^(-t)
+    (cos(omega_d t) + 1/omega_d sin(omega_d t)) quad qed
+$
+Here $t$ is in seconds. The oscillation frequency is $omega_d approx 1.2052$ #unit("rad/s") (approximately #qty(0.1918, "Hz")), and $zeta approx 0.6386$. Using the usual 2% settling-time estimate:
+$
+    t_s approx 4/(zeta omega_n) = 4 quad ("seconds") quad qed
+$
+The 2% band is relative to the initial displacement, and this formula is an estimate rather than the exact last band crossing.
+
+#figure(
+    image("../outputs/figures/s02.png", width: 90%),
+    caption: [Linearized release response with $epsilon =$ #qty(0.1, "rad") and zero initial angular speed.],
+)
+
+The Python calculation gives:
+#raw(read("../outputs/text/s02.txt"), block: true)
 
 #pagebreak(weak: true)
 
@@ -218,7 +266,65 @@ $
     <hwk:p03c>
 ] <hwk:p03>
 
-// TODO: answer
+1. Verification of the reference solution
+
+Substituting $v^* = omega^* = 1$ and $theta^* = t$ into the right-hand sides:
+$
+    v^* cos(theta^*) = cos(t) = dv(sin(t), t) = dot(p)_x^* \
+    v^* sin(theta^*) = sin(t) = dv(1-cos(t), t) = dot(p)_y^* \
+    omega^* = 1 = dv(t, t) = dot(theta)^*
+$
+All three equations hold, with initial state $vec(0, 0, 0)$. Thus, the stated trajectory is a valid solution. $quad qed$
+
+2. Linearization in the original coordinates
+
+Define the state and input deviations:
+$
+    vbu(x) = vec(p_x-sin(t), p_y-(1-cos(t)), theta-t),
+    quad vbu(u) = vec(v-1, omega-1)
+$
+Taking the state and input Jacobians along the reference trajectory gives:
+$
+    dot(vbu(x)) = vb(A)(t) vbu(x) + vb(B)(t) vbu(u)
+$
+where
+$
+    vb(A)(t) = mat(0, 0, -sin(t); 0, 0, cos(t); 0, 0, 0),
+    quad vb(B)(t) = mat(cos(t), 0; sin(t), 0; 0, 1)
+$
+The coefficients depend explicitly on time, so this linearization is time-varying. $quad qed$
+
+3. Linearization in the alternate coordinates
+
+Differentiate $z_1$ and substitute the original equations:
+$
+    dot(z)_1 & = dot(p)_x cos(theta) + dot(p)_y sin(theta)
+               + dot(theta)(-p_x sin(theta)+(p_y-1)cos(theta)) \
+             & = v + omega z_2
+$
+Similarly,
+$
+    dot(z)_2 & = -dot(p)_x sin(theta)+dot(p)_y cos(theta)
+               -dot(theta)(p_x cos(theta)+(p_y-1)sin(theta)) \
+             & = -omega z_1 \
+    dot(z)_3 & = omega
+$
+Along the reference solution:
+$
+    vbu(z)^*(t) = vec(0, -1, t)
+$
+Define $vbu(eta) = vbu(z)-vbu(z)^*$ and retain the same input deviations as above. The exact deviation equations are:
+$
+    dot(eta)_1 & = eta_2 + u_1-u_2 + u_2 eta_2 \
+    dot(eta)_2 & = -eta_1-u_2 eta_1 \
+    dot(eta)_3 & = u_2
+$
+Dropping products of deviations:
+$
+    dot(vbu(eta)) = mat(0, 1, 0; -1, 0, 0; 0, 0, 0) vbu(eta)
+    + mat(1, -1; 0, 0; 0, 1) vbu(u) quad qed
+$
+Both matrices are constant, so the transformed linearization is time-invariant, even though $z_3^* = t$ varies with time.
 
 #pagebreak(weak: true)
 
@@ -243,7 +349,56 @@ $
     <hwk:p04c>
 ] <hwk:p04>
 
-// TODO: answer
+1. Equilibrium points
+
+At equilibrium, $omega^* = 0$ and $dot(omega)^* = 0$. Thus:
+$
+    sin(theta^*) (a^2-Omega^2 cos(theta^*)) = 0
+$
+When $Omega^2 < a^2$, the second factor is strictly positive since
+$
+    a^2-Omega^2 cos(theta^*) >= a^2-Omega^2 > 0
+$
+Therefore, $sin(theta^*) = 0$. In the principal interval $[-pi, pi]$, the only equilibrium angles are:
+$
+    theta^* = 0, plus.minus pi, quad omega^* = 0 quad qed
+$
+Angles are understood modulo $2 pi$; $pi$ and $-pi$ describe the same physical position.
+
+2. Linearized dynamics
+
+Write the nonlinear state equations:
+$
+    dot(theta) = omega, quad
+    dot(omega) = -b omega-a^2 sin(theta)+Omega^2 cos(theta)sin(theta)
+$
+For $vbu(x) = vec(theta-theta^*, omega)$, the Jacobian gives:
+$
+    dot(vbu(x)) = vb(A) vbu(x), quad
+    vb(A) = mat(0, 1; -k, -b)
+$
+where
+$
+    k = a^2 cos(theta^*)-Omega^2 cos(2 theta^*)
+$
+Evaluating at each equilibrium:
+$
+    k = cases(
+        a^2-Omega^2 & theta^*=0,
+        -a^2-Omega^2 & theta^*=plus.minus pi
+    ) quad qed
+$
+
+3. Local stability
+
+The characteristic equation and eigenvalues are:
+$
+    lambda^2+b lambda+k = 0, quad
+    lambda_(1,2) = (-b plus.minus sqrt(b^2-4k))/2
+$
+At the bottom, $k = a^2-Omega^2 > 0$. Since $b > 0$, both eigenvalues have negative real parts. Small initial angle and speed deviations decay, and the bead returns to the bottom. The response is underdamped, critically damped, or overdamped according as $b^2$ is less than, equal to, or greater than $4k$. $quad qed$
+
+At the top, $k = -a^2-Omega^2 < 0$. The eigenvalues have opposite signs, so this equilibrium is an unstable saddle. Generic nearby initial conditions diverge from the top. Only initial states on its stable manifold approach it; this exceptional set does not make the equilibrium stable. $quad qed$
 
 #pagebreak(weak: true)
 
@@ -266,7 +421,53 @@ $
     <hwk:p05e>
 ] <hwk:p05>
 
-// TODO: answer
+1. Additional equilibria
+
+The equilibrium condition remains:
+$
+    sin(theta^*) (a^2-Omega^2 cos(theta^*)) = 0
+$
+In addition to $0$ and $plus.minus pi$, the second factor now admits:
+$
+    cos(theta^*) = a^2/Omega^2, quad
+    theta^* = plus.minus arccos(a^2/Omega^2) quad qed
+$
+Since $0 < a^2/Omega^2 < 1$, the new angles satisfy $0 < abs(theta^*) < pi/2$ in the principal interval. Thus, neither new physical equilibrium lies above the horizontal. Adding multiples of $2 pi$ can produce numerical angles greater than $pi/2$, but these describe the same positions.
+
+2. Linearized dynamics
+
+Using the Jacobian found in Problem 4:
+$
+    vb(A) = mat(0, 1; -k, -b), quad
+    k = a^2 cos(theta^*)-Omega^2 cos(2 theta^*)
+$
+At either new equilibrium, substitute $a^2 = Omega^2 cos(theta^*)$:
+$
+    k = Omega^2 sin^2(theta^*)
+    = Omega^2-a^4/Omega^2 > 0 quad qed
+$
+For completeness, the original equilibria still have $k(0) = a^2-Omega^2 < 0$ and $k(plus.minus pi) = -a^2-Omega^2 < 0$.
+
+3. Motion near the bottom
+
+At $theta^* = 0$, $k < 0$, so the linearization has one positive and one negative eigenvalue. The bottom is now an unstable saddle: generic small disturbances grow, and the bead does not return to the bottom. As with the top in Problem 4, approach along the stable manifold is exceptional. This differs from Problem 4, where $Omega^2 < a^2$ made the bottom locally asymptotically stable. $quad qed$
+
+4. Rotation rate for the specified equilibrium
+
+Set $theta^* = pi/3$:
+$
+    a^2 = Omega^2 cos(pi/3) = Omega^2/2
+    quad arrow.r quad abs(Omega) = sqrt(2) a
+$
+Taking the positive rotation rate gives $Omega = sqrt(2) a quad qed$. The opposite rotation direction gives the same equilibrium.
+
+5. Motion near $pi/3$
+
+At the rate found above:
+$
+    k = Omega^2 sin^2(pi/3) = 2a^2 dot 3/4 = 3a^2/2 > 0
+$
+With $b > 0$, both eigenvalues have negative real parts. Thus, sufficiently small initial angle and speed deviations converge back to $pi/3$. This is a local conclusion about the nonlinear system, obtained from its asymptotically stable linearization. $quad qed$
 
 #pagebreak(weak: true)
 
@@ -282,11 +483,78 @@ $
     <hwk:p06b>
 ] <hwk:p06>
 
-// TODO: answer
+1. Linearization with hoop speed as input
+
+Choose the positive nominal rate $mu^* = Omega^* = sqrt(2) a$. Define:
+$
+    vbu(x) = vec(theta-pi/3, omega), quad
+    mu(t) = Omega(t), quad u(t) = mu(t)-mu^*
+$
+The nonlinear angular acceleration is:
+$
+    f(theta, omega, mu) = -b omega-a^2 sin(theta)+mu^2 cos(theta)sin(theta)
+$
+The input derivative at trim is:
+$
+    pdv(f, mu) |_* = 2 Omega^* cos(pi/3)sin(pi/3)
+    = sqrt(3)/2 Omega^* = sqrt(6)/2 a
+$
+Using $k = 3a^2/2$ from Problem 5:
+$
+    dot(vbu(x)) = vb(A) vbu(x)+vb(B) u, quad
+    vb(A) = mat(0, 1; -3a^2/2, -b), quad
+    vb(B) = vec(0, sqrt(6) a/2) quad qed
+$
+This is an equation in the input deviation $u$, not the full hoop rate $mu$.
+
+2. PD feedback design
+
+Interpret the specified transient oscillation frequency as the damped frequency $omega_d =$ #qty(2, "rad/s"). For $zeta = 0.7$:
+$
+    omega_n = omega_d/sqrt(1-zeta^2) = 2/sqrt(0.51), quad
+    omega_n^2 = 400/51
+$
+The desired characteristic polynomial is:
+$
+    lambda^2+2 zeta omega_n lambda+omega_n^2
+    approx lambda^2+3.920784 lambda+7.843137
+$
+Let $beta = sqrt(6) a/2$ and choose:
+$
+    u = -K_p x_1-K_d x_2
+$
+Then
+$
+    dot.double(x)_1+(b+beta K_d)dot(x)_1+(3a^2/2+beta K_p)x_1 = 0
+$
+Matching coefficients gives:
+$
+    K_p = (omega_n^2-3a^2/2)/beta, quad
+    K_d = (2 zeta omega_n-b)/beta
+$
+With $a = 3$ and $b = 0.25$, the Python calculation gives:
+#raw(read("../outputs/text/s06b.txt"), block: true)
+
+Thus, the commanded physical hoop speed is:
+$
+    Omega(t) = Omega^*-K_p lr(theta(t)-pi/3)-K_d omega(t)
+$
+Numerically, with angles in radians and time in seconds:
+$
+    Omega(t) approx 4.242641+1.539603(theta(t)-pi/3)-0.999061 omega(t) quad qed
+$
+The proportional gain $K_p$ is negative because the requested stiffness $omega_n^2$ is smaller than the uncontrolled stiffness $3a^2/2 = 13.5$. The derivative term increases damping. The resulting poles are $-1.960392 plus.minus 2j$, which give the specified damped frequency and damping ratio.
+
+These targets apply to the local linearization. As a numerical check, apply the same feedback to the original nonlinear equations with $theta(0)-pi/3 =$ #qty(0.02, "rad") and $omega(0) =$ #qty(0.01, "rad/s"):
+
+#figure(
+    image("../outputs/figures/s06b.png", width: 90%),
+    caption: [Linear and nonlinear responses under the PD law, and the commanded nonlinear hoop rate.],
+)
 
 #pagebreak(weak: true)
 
-==  Code
+== Code
 
 #codly(header: [./src/index.py])
 #raw(read("../src/index.py"), block: true, lang: "python") <hwk:code>

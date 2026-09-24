@@ -1,0 +1,5 @@
+Trim torque = 16.991418 N m
+Natural frequency = 1.566046 rad/s
+Damping ratio = 0.638551
+Damped frequency = 1.205197 rad/s
+2% settling-time estimate = 4.000000 s

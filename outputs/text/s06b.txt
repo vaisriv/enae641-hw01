@@ -1,0 +1,6 @@
+Nominal hoop rate = 4.242641 rad/s
+Input coefficient = 3.674235
+Desired natural frequency = 2.800560 rad/s
+Kp = -1.539603 s^-1
+Kd = 0.999061
+Closed-loop poles = -1.960392+2.000000j, -1.960392-2.000000j s^-1
