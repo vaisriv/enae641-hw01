@@ -49,12 +49,16 @@
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "a)")
 
+// problem headings
+#let probOld = prob
+#let prob = prob.with(color: black)
+
 ////////////////////////////
 // The Assignment Itself: //
 // Problems and Solutions //
 ////////////////////////////
 
-#prob(color: black)[
+#prob[
     1. Find the coordinates of the vector $vbu(x)^TT = vecrow(-3, 2, 4)$ in the basis given by
         $
             vbu(v)_1 = vec(2, -1, 4) quad
@@ -175,7 +179,7 @@ $
 
 #pagebreak(weak: true)
 
-#prob(color: black)[
+#prob[
     Using the simple pendulum example from the lectures, suppose $l = 2, m = 1$ (metric units), and $b'(0) = 8$.
 
     1. Determine the trim input $tau_m^*$ needed to maintain an equilibrium angle $theta^* = pi/3$. Determine the corresponding input-output differential equation that models deviations of the system from this equilibrium.
@@ -189,7 +193,7 @@ $
 
 #pagebreak(weak: true)
 
-#prob(color: black)[
+#prob[
     Consider a kinematic model of a unicycle maneuvering in a plane:
     $
           dot(p)_x & = v cos(theta) \
@@ -218,7 +222,7 @@ $
 
 #pagebreak(weak: true)
 
-#prob(color: black)[
+#prob[
     A bead is constrained to move on a vertical, circular hoop of radius $R$. There is non-negligible friction between the bead and the hoop, creating some damping in the motion of the bead. The hoop itself is spinning about its vertical axis at a constant angular rate of $Omega$ #unit("rad/s"). Let $theta$ be the angular position (#unit("rad")) of the bead on the hoop, measured from the local vertical (down), and let $omega = dv(theta, t)$ be the rate of change of this angle (#unit("rad/s")). The differential equation modeling the motion fo the bead is then
     $
         dot(omega)(t) + b omega(t) + a^2 sin(theta(t)) = Omega^2 cos(theta(t)) sin(theta(t))
@@ -243,7 +247,7 @@ $
 
 #pagebreak(weak: true)
 
-#prob(color: black)[
+#prob[
     Suppose in #link(<hwk:p04>)[Problem 4] that the hoop is spinning faster so that $Omega^2 > a^2$.
 
     1. Show that bead can have new equilibrium points $theta^*$ in addition to those identified in #link(<hwk:p04>)[Problem 4]. Can any of these new equilibrium points satisfy $theta^* > pi/2$ (#unit("rad"))? Why or why not?
@@ -266,7 +270,7 @@ $
 
 #pagebreak(weak: true)
 
-#prob(color: black)[
+#prob[
     The equations of motion given in #link(<hwk:p04>)[Problem 4] are valid even if the hoop rotation rate $Omega$ is changing with time. Suppose that the nominal rotation rate $Omega^*$ of the hoop is sufficient that the system $theta^* = pi/3$ as an equilibrium point, but now we will directly vary the hoop speed $Omega(t)$ slightly around this nominal value to influence the motion of the bead.
 
     1. Treating the hoop spin rate $Omega(t)$ as the input to the system, determine the linearized dynamics of the motion of the bead for small displacements from the $theta^* = pi/3$ equilibrium. (You will now have both $vb(A)$ and $vb(B)$ matrices.)
