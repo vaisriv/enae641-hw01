@@ -27,12 +27,17 @@
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "a)")
 
+#set math.vec(delim: "[")
+#set math.mat(delim: "[")
+#let vecrowOld = vecrow
+#let vecrow = vecrowOld.with(delim: "[")
+
 #prob(color: black)[
-    1. Find the coordinates of the vector $vbu(x)^TT = vecrow(-3, 2, 4, delim: "[")$ in the basis given by
+    1. Find the coordinates of the vector $vbu(x)^TT = vecrow(-3, 2, 4)$ in the basis given by
         $
-            vbu(v)_1 = vec(2, -1, 4, delim: "[") quad
-            vbu(v)_2 = vec(-2, 2, 1, delim: "[") quad
-            vbu(v)_3 = vec(3, 1, 3, delim: "[")
+            vbu(v)_1 = vec(2, -1, 4) quad
+            vbu(v)_2 = vec(-2, 2, 1) quad
+            vbu(v)_3 = vec(3, 1, 3)
         $
     <hwk:p01a>
 
@@ -42,34 +47,109 @@
                 2, 1, 0;
                 4, 2, 0;
                 6, 3, 0;
-                delim: "["
             )
         $
     <hwk:p01b>
 ] <hwk:p01>
 
-// Note that $r equiv abs(vbu(r))$ and $dot(vbu(r)) equiv vbu(v)$:
-// $ vbu(r) dprod vbu(v) = abs(vbu(r)) dot(r) $
-//
-// Rearrange, with $r > 0$:
-// $ dot(r) = (vbu(r) dprod vbu(v))/abs(vbu(r)) $
-//
-// Note that $vbu(r)/abs(vbu(r)) equiv vuu(r)$:
-// $ (vbu(r) dprod vbu(v))/abs(vbu(r)) = vuu(r) dprod vbu(v) $
-//
-// From Eq. 2.7:
-// $ vuu(u)_r = vbu(r)/r = vbu(r)/abs(vbu(r)) = vuu(r) $
-//
-// Thus:
-// $ dot(r) = vuu(u)_r dprod vbu(v) $
-//
-// The dot product is commutative, so:
-// $ dot(r) = vuu(u)_r dprod vbu(v) = vbu(v) dprod vuu(u)_r $
-//
-// We now have:
-// $ dot(r) = vbu(v) dprod vuu(u)_r quad qed $
-//
-// The dot product projects the velocity onto the outward radial direction. Thus, $dot(r)$ is the radial component of velocity: it is positive when the spacecraft moves away from the attracting body, negative when it moves toward it, and zero when the velocity is perpendicular to the radius. A zero radial velocity does not imply that the spacecraft is stationary.
+1. Coordinates in new basis
+
+We would like scalars $c_1, c_2, c_3$ such that
+$
+    vbu(x) = c_1 vbu(v)_1 + c_2 vbu(v)_2 + c_3 vbu(v)_3
+$
+
+Construct a matrix with the basis vectors as columns:
+$
+    vb(V) = mat(vbu(v)_1, vbu(v)_2, vbu(v)_3)
+    = mat(
+        2, -2, 3;
+        -1, 2, 1;
+        4, 1, 3;
+    )
+$
+
+Set up change of basis equation:
+$
+    mat(vbu(v)_1, vbu(v)_2, vbu(v)_3) vec(c_1, c_2, c_3) = vbu(x)
+$
+
+Substituting known values:
+$
+    mat(
+        2, -2, 3;
+        -1, 2, 1;
+        4, 1, 3;
+    ) vec(c_1, c_2, c_3) = vec(-3, 2, 4)
+$
+
+Row reducing:
+$
+    mat(
+            2, -2, 3, -3;
+            -1, 2, 1, 2;
+            4, 1, 3, 4;
+            augment: #3
+    ) ~ mat(
+        1, 0, 0, 29/31;
+        0, 1, 0, 53/31;
+        0, 0, 1, -15/31;
+        augment: #3
+    )
+$
+
+Thus, relative to the ordered basis $cal(B) = vecrow(vbu(v)_1, vbu(v)_2, vbu(v)_3)$,
+$
+    [vbu(x)]_cal(B) = 1/31 vec(29, 53, -15) quad qed
+$
+
+2. Rank, range, nullity, and nullspace
+
+Row reducing $vb(A)$:
+$
+    vb(A) = mat(
+        2, 1, 0;
+        4, 2, 0;
+        6, 3, 0;
+    ) ~ mat(
+        1, 1/2, 0;
+        0, 0, 0;
+        0, 0, 0;
+    )
+$
+
+There is one pivot and two free variables, so:
+$
+    rank(vb(A)) = 1 quad qed
+$
+$
+    op("nullity")(vb(A)) = 2 quad qed
+$
+
+Regarding the original $vb(A)$ matrix, first column is a pivot column, the second column is half of the first (meaning it can be expressed as a linear combination of the first column), and the third is zero. Thus, the first column forms a basis for its range:
+$
+    vb(B)_(op("range")(vb(A))) = {vec(2, 4, 6)} quad qed
+$
+
+The find the nullspace, we solve:
+$
+    vb(A) vbu(z) = vb(0)
+$
+
+Substituting known values:
+$
+    2 z_1 + z_2 = 0
+$
+
+Choosing $z_2 = 2s$ and $z_3 = t$:
+$
+    vbu(z) = vec(-s, 2s, t) = s vec(-1, 2, 0) + t vec(0, 0, 1)
+$
+
+Thus, a basis for the nullspace is:
+$
+    vb(B)_(op("nul")(vb(A))) = {vec(-1, 2, 0), vec(0, 0, 1)} quad qed
+$
 
 #pagebreak(weak: true)
 
