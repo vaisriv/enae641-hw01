@@ -1,6 +1,17 @@
+/////////////
+// Imports //
+/////////////
 #import "@preview/adaptable-pset:0.2.0": *
 #import "@preview/physica:0.9.8": *
 #import "@preview/unify:0.8.1": *
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
+#show: codly-init.with()
+#codly(languages: codly-languages)
+
+/////////////////
+// Maths Setup //
+/////////////////
 
 // upright vectors
 #let vectorboldupright(a) = vb($upright(#a)$)
@@ -9,6 +20,16 @@
 #let vuu = vectorunitupright
 #let vectorarrowupright(a) = va($upright(#a)$)
 #let vau = vectorarrowupright
+
+// automatically use square brackets for vectors and matricies
+#set math.vec(delim: "[")
+#set math.mat(delim: "[")
+#let vecrowOld = vecrow
+#let vecrow = vecrowOld.with(delim: "[")
+
+////////////////////
+// Document Setup //
+////////////////////
 
 // assignment info
 #show: homework.with(
@@ -24,13 +45,14 @@
     paper-size: "us-letter",
 )
 
+// document settings
 #set text(font: "New Computer Modern", size: 10pt)
 #set enum(numbering: "a)")
 
-#set math.vec(delim: "[")
-#set math.mat(delim: "[")
-#let vecrowOld = vecrow
-#let vecrow = vecrowOld.with(delim: "[")
+////////////////////////////
+// The Assignment Itself: //
+// Problems and Solutions //
+////////////////////////////
 
 #prob(color: black)[
     1. Find the coordinates of the vector $vbu(x)^TT = vecrow(-3, 2, 4)$ in the basis given by
@@ -255,3 +277,12 @@ $
         #smallcaps[Hint:] A simple PD control strategy for the linearization should be sufficient; for simplicity, you may assume the numerical values $a = 3$ and $b = 0.25$. #emph[Be careful to distinguish $mu(t) = Omega(t)$ from $u(t)$ in your analysis!]
     <hwk:p06b>
 ] <hwk:p06>
+
+// TODO: answer
+
+#pagebreak(weak: true)
+
+==  Code
+
+#codly(header: [./src/index.py])
+#raw(read("../src/index.py"), block: true, lang: "python") <hwk:code>
